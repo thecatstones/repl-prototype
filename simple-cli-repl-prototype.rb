@@ -1,4 +1,5 @@
-# input = ''
+#!/usr/bin/env ruby
+# Simple CLI REPL Prototype
 
 def new_binding
   binding
@@ -10,6 +11,11 @@ loop do
   print '>> '
   input = gets.chomp
   break if input == 'exit'
-  return_val = b.eval(input)
-  p return_val
+  begin
+    return_val = b.eval(input)
+  rescue Exception => error
+    return_val = error
+  ensure
+    p return_val
+  end
 end
