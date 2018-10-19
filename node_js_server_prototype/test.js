@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const stdinWrite = require('./shell.js');
+const { stdinWrite, getChildProcess } = require('./shell.js');
+// const EventEmitter = require('events');
+// const emitter = new EventEmitter();
 const app = express();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -10,26 +13,22 @@ app.get('/', (req, res) => {
 });
 
 app.post('/repl', (req, res) => {
-  const command = req.body.command;
-  const child = stdinWrite(command + "\n");
+  let concatResult;
+  let command = req.body.command;
+  command = command + "\n";
+  const child = getChildProcess();
 
-  // child.stdout.on('data', data => {
-  //   console.log("DATA", data);
-  //   res.write(data);
-  // });
-  
-  // child.stdout.pipe(res);
-  // res.end();
-
-  const writtenPromise = new Promise((resolve, reject) => {
-    child.stdout.on('data', data => {
-      console.log("DATA", data);
-      resolve(data);
-    });
+  const writeToChild = new Promise((resolve, reject) => {
+    stdinWrite(command);
+    let result = '';
+    concatResult = (data) => result += data;
+    child.stdout.on('data', concatResult);
+    setTimeout(() => resolve(result), 3)
   });
 
-  writtenPromise.then(result => {
-    child.stdout.pipe(res);
+  writeToChild.then(data => {
+    child.stdout.removeListener('data', concatResult);
+    res.send(data);
   });
 });
 
