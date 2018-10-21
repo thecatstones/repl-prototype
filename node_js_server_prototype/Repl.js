@@ -12,13 +12,19 @@ const Repl = (function() {
     },
 
     exec(language) {
+      if (process !== null) process.kill();
       process = shell.exec(this.REPLS[language], {async: true});
       runningLanguage = language;
       newProcess = true;
+      return process;
     },
 
     stdinWrite(string) {
       process.stdin.write(string);
+    },
+
+    stdoutOn(event, callback) {
+      process.stdout.on(event, callback);
     },
 
     getProcess() {
