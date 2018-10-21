@@ -13,13 +13,16 @@
     });
 
     socket.on('output', ({ output }) => {
+
       output.split("\n").forEach ( line => {
         const lineHtml = `<li><code>${_.escape(line)}</code></li>`
         $('ul.terminal').append(lineHtml);
       });
+      
     });
     socket.on('disconnect', function(){});
   </script>
+
   <style>
     input, button {
       font-size: 20px;
