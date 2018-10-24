@@ -6,10 +6,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js"></script>
+  <script src="/websocket_ui_jquery.js"></script>
+
   <script>
     const socket = io('http://localhost:3000');
     socket.on('connect', () => {
-      socket.emit('execRepl', { language: "ruby" });
+      socket.emit('execRepl', { language: "javascript" });
     });
 
     socket.on('output', ({ output }) => {
@@ -43,35 +45,12 @@
 </head>
 <body>
   <form>
-    <input id="language" type="text" name="language" placeholder="Language" value="ruby" />
+    <input id="language" type="text" name="language" placeholder="Language" value="javascript" />
     <input id="command" type="text" name="command" placeholder="Enter command here" />
 
     <button type="button">Execute!</button>
   </form>
 
   <ul class="terminal"></ul>
-
-  <script>
-    $(function() {
-      const handleKeydown = (event) => {
-        const ctrlC = event.ctrlKey && event.key === 'c';
-        const enter = event.key === 'Enter';
-
-        if (ctrlC || enter) executeCommand(event, ctrlC);
-      }
-
-      const executeCommand = (event, ctrlC) => {
-        const command = $('[name=command]').val();
-        const language = $('[name=language]').val();
-
-        socket.emit('execute', { command, language, ctrlC });
-
-        $('[name=command]').val('');
-      }
-
-      $('button').on('click', executeCommand);
-      $(document).on('keydown', handleKeydown);
-    });
-  </script>
 </body>
 </html>

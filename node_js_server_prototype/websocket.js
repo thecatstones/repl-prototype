@@ -9,6 +9,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './websocket.html'));
 });
 
+app.get('/websocket_ui_jquery.js', (req, res) => {
+  res.sendFile(path.join(__dirname, './websocket_ui_jquery.js'))
+});
+
 const server = http.Server(app);
 server.listen(3000);
 
@@ -16,10 +20,11 @@ const io = socketIo(server);
 
 io.on('connection', socket => {
   socket.on('execRepl', ({ language }) => {
+    console.log(language);
     Repl.exec(language);
 
     Repl.stdoutOn('data', data => {
-      socket.emit('output', { output: data });
+      io.emit('output', { output: data });
     });
   });
 
@@ -30,7 +35,7 @@ io.on('connection', socket => {
       Repl.getProcess().kill('SIGINT');
       return;
     }
-    Repl.stdinWrite(command + "\n");
+    Repl.stdinWrite(command + "\r\n");
   });
 });
 

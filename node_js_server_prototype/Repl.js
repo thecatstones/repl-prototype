@@ -8,15 +8,20 @@ const Repl = (function() {
   return {
     REPLS: {
       ruby: 'irb',
-      js: 'node',
+      javascript: 'node',
+      python: 'python',
     },
 
     exec(language) {
       if (process !== null) process.kill();
-      process = shell.exec(this.REPLS[language], {async: true});
+      process = shell.exec('stdbuf -i0 -oL -eL ' + this.REPLS[language], {async: true, shell: '/bin/bash'});
       runningLanguage = language;
       newProcess = true;
       return process;
+    },
+
+    stdin() {
+      return process.stdin;
     },
 
     stdinWrite(string) {
